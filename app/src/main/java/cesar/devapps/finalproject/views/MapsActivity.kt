@@ -114,7 +114,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         var flag_latLong = true
         var latitude : Double = 0.0
         var longitude = 0.0
-        mMap.isMyLocationEnabled = true
+
         val pattern : Pattern = Pattern.compile("\\-?\\d{1,}\\.\\d{2,}")
         val matcher: Matcher = pattern.matcher(content)
 
@@ -126,6 +126,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             || checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION)
             == PackageManager.PERMISSION_GRANTED
         ) {
+            mMap.isMyLocationEnabled = true
             while(matcher.find()) {
                 if (flag_latLong) {
 
@@ -139,6 +140,13 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                 }
             // Log.d(TAG,"TESTE FIND: "+matcher.group(0)) // returna tudo que fez Match
             }
+        }else {
+            requestPermissions(
+                arrayOf(
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.ACCESS_COARSE_LOCATION
+                ), 1010
+            )
         }
     }
 
@@ -195,8 +203,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                     if (workInfo != null && workInfo.state.isFinished) {
                         resultDataApi = workInfo.outputData.getString("json")
                         setMapPositionRecifeAcademy(resultDataApi.toString())
-                        Log.d(TAG, "${workInfo.outputData.getString("json")}")
-
                     } else {
                         Log.d(TAG, "workInfo é nulo ou não finalizado")
                 }
