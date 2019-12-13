@@ -1,31 +1,28 @@
 package cesar.devapps.finalproject.notification
 
-import android.app.NotificationManager
-import android.app.PendingIntent
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import androidx.core.app.NotificationCompat
-import cesar.devapps.finalproject.views.LoginActivity
+import android.os.Build
+import android.util.Log
+import androidx.work.OneTimeWorkRequest
+import androidx.work.PeriodicWorkRequest
+import androidx.work.WorkManager
+import cesar.devapps.finalproject.download.DownloadWorker
+import java.util.concurrent.TimeUnit
 
 
 class NotificationReceiver : BroadcastReceiver() {
+   val TAG = NotificationReceiver::class.java.simpleName
     override fun onReceive(context: Context?, intent: Intent?) {
-        val notificationManager = context?.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        val repeatingIntent = Intent(context,LoginActivity::class.java)
-
-        val pendingIntent = PendingIntent.getActivity(context,100,repeatingIntent,PendingIntent.FLAG_UPDATE_CURRENT)
-
-        val builder = NotificationCompat.Builder(context,"MyApp")
-        builder.setContentIntent(pendingIntent)
-        builder.setSmallIcon(android.R.drawable.arrow_up_float)
-        builder.setContentTitle("notificação diária")
-        builder.setContentText("entrar para registrar nova atividade")
-        builder.setAutoCancel(true)
-        builder.priority = NotificationCompat.PRIORITY_HIGH
-
-        val notification = builder.build()
-
-        notificationManager.notify(100,notification)
+        if (intent?.action.equals(Intent.ACTION_BOOT_COMPLETED)) {
+            Log.d("MyFirstBoot", "Aconteceu o boot completed")
+            val workManager = WorkManager.getInstance()
+            val periodicWorkRequest = PeriodicWorkRequest.Builder(NotificationWorker::class.java,1,TimeUnit.DAYS)
+                .build()
+            workManager.enqueue(periodicWorkRequest)
+        } else {
+            Log.e(TAG, "Aconteceu algum problema, Action ${intent?.action}")
+        }
     }
 }
